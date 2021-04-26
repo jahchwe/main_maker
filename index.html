@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <title>Experiment</title>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
+    </head>
+
+    <style type="text/css">
+    </style>
+
+    <!-- HTML -->
+    <body>
+      <div class="jumbotron">
+        <div class="container">
+          <h1 class="display-4">Main.js Maker</h1>
+          <p class="lead">A simple form for making a webMT main.js file</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <p>Your standard experiment will contain a <code>screenerTask</code> followed by a <code>consentPage</code>. Here, a default screenerTask is added automatically. After those objects, you'll probably add one of the following types of experiment objects.</p>
+        <p>The formatting for each one of these tasks differs, so this form exists as a way to create experiments without worrying about the minutiae.
+      </div>
+
+      <div class="container">
+        <h3>Types of experiment task objects</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Words</th>
+              <th scope="col">Pictures</th>
+              <th scope="col">Words + pics</th>
+              <th scope="col">Timed?</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">voteObj</th>
+              <td>✅</td>
+              <td>✅</td>
+              <td>❌</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <th scope="row">decisionTask</th>
+              <td>✅</td>
+              <td>✅</td>
+              <td>❌</td>
+              <td>✅</td>
+            </tr>
+            <tr>
+              <th scope="row">voteObjMultiComp</th>
+              <td>❌</td>
+              <td>❌</td>
+              <td>✅</td>
+              <td>❌</td>
+            </tr>
+            <tr>
+              <th scope="row">DecisionMultiComp</th>
+              <td>❌</td>
+              <td>❌</td>
+              <td>✅</td>
+              <td>✅</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="container">
+        <h3>Experiment Variables</h3>
+      </div>
+
+      <div class="container">
+        <form>
+          <div class="form-group row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Study Name</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="experimentName" placeholder="studyType/studyName">
+              <small id="emailHelp" class="form-text text-muted">This controls where the responses will be stored on the server.</small>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="object_type" class="col-sm-2 col-form-label">Task</label>
+            <div class="col-sm-10">
+              <select id="inputState" class="form-control">
+                <option selected>consentForm</option>
+                <option>voteObj</option>
+                <option>decisionTask</option>
+                <option>voteObjMultiComp</option>
+                <option>DecisionMultiComp</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Drag and drop list: https://jsfiddle.net/djibe89/d2fvqpke/ -->
+      <div class="container">
+        <div class="row" id="currentExperimentForm">
+          <div class="col">
+            <h5>Task Parameters</h5>
+            <form>
+              <div class="form-group">
+                <label for="taskName">task name</label>
+                <input type="text" class="form-control" id="taskName">
+                <small id="taskName_help" class="form-text text-muted">Controls labeling of output in csv</small>
+              </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+
+          <div class="col">
+            <h5>Current experiment objects (drag and drop ordering)</h5>
+              <ul class="list-group" id="demo1">
+                <li class="list-group-item">Cras justo odio <button type="button">Edit</button></li>
+                <li class="list-group-item">Dapibus ac facilisis in</li>
+                <li class="list-group-item">Morbi leo risus</li>
+                <li class="list-group-item">Porta ac consectetur ac</li>
+                <li class="list-group-item">Vestibulum at eros</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <h3>Output</h3>
+        <div class="form-group">
+          <textarea class="form-control" id="output" rows="5"></textarea>
+        </div>
+      </div
+
+
+      <!-- form for general study variables-->
+
+    <script>
+      Sortable.create(demo1, { animation: 100, group: 'list-1', draggable: '.list-group-item', handle: '.list-group-item', sort: true, filter: '.sortable-disabled', chosenClass: 'active' });
+    </script>
+
+    </body>
+
+
+</html>
