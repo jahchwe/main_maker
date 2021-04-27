@@ -26,6 +26,7 @@
         <p>Your standard experiment will contain a <code>screenerTask</code> followed by a <code>consentPage</code>. Here, a default screenerTask is added automatically. After those objects, you'll probably add one of the following types of experiment objects.</p>
         <p>The formatting for each one of these tasks differs, so this form exists as a way to create experiments without worrying about the minutiae.</p>
         <p>You should use this to make large changes/a template for your experiment then fiddle in a text editor with the finer details.</p>
+        <p>For all tasks, only a subset of potential attributes have been made accessible through this form. To see the full list of attributes able to be customized, look through the <code>/scripts/</code> folder on the server and the relevant <code>.js</code> files.</p>
       </div>
 
       <div class="container">
@@ -177,7 +178,7 @@
 
       <div class="container">
         <div class="form-group">
-          <button type="button" class="btn btn-primary btn-lg btn-block" id="makeit">Make my main!</button>
+          <button type="button" class="btn btn-primary btn-lg btn-block" onclick="makeMain();">Make my main!</button>
         </div>
       </div>
 
@@ -234,19 +235,20 @@
         all_tasks[task_id] = {}
 
         for (var i = 0; i < form_elements.length; i++) {
+          // form elements here is a large DOM element.
           var elementID = form_elements[i].id
           console.log(elementID)
           if (elementID == 'taskName') {
             continue;
           }
-
+          // parse this DOM element using another jquery selector to get actual value inputted by user.
           var elementVal = $('#' + elementID).val()
           all_tasks[task_id][elementID] = elementVal
         }
         //store the type of task Here
         all_tasks[task_id]['task_type'] = task_selection
         // add element to task_sorter
-        $('#task_sorter').append('<li class="list-group-item" id="sorter_item_' + task_id + '"> ' + task_id + ' <button class="task_edit" type="button" id="'+ task_id + '">Edit</button> <button class="task_delete" type="button" id="'+ task_id+'" >Delete</button></li>')
+        $('#task_sorter').append('<li class="list-group-item" id="sorter_item_' + task_id + '" name="'+ task_id +'"> ' + task_id + ' <button class="task_edit" type="button" id="'+ task_id + '">Edit</button> <button class="task_delete" type="button" id="'+ task_id+'" >Delete</button></li>')
 
         //add listeners to task delete and edit buttons
         //doing this every time a new task is added, not the most efficient but w/e
@@ -267,8 +269,39 @@
           $(".task_edit").click(function() {
             console.log('edit')
             var task_id = $(this).attr("id")
-            var task_type = all_tasks[task_id]
+            console.log(task_id)
+            var task_type = all_tasks[task_id]['task_type']
+            console.log(task_type)
+
+            // change form to match type
+            $('#currentForm').empty()
+            $('#currentForm').append(task_form_dict[task_type])
+            $('#unique_task_warning').hide()
+
+            // iterate through stored info, and propogate that info back into the text boxes
+            // can use jquery val selector to propogate info for both textareas and inputs
+            for (let entry in all_tasks[task_id]) {
+              $('#' + entry).val(all_tasks[task_id][entry])
+            }
+
+
+
           })
+      }
+
+      function makeMain() {
+
+        // iterate through stored task information
+        // grab task order from sortable list
+
+        task_order = []
+        //crucially, this will be in the order that it appears on the screen
+        $('li').each(function() {
+          let list_id = this.id
+          task_order.push(list_id.substring(12,))
+        })
+        console.log(task_order)
+
       }
 
 
