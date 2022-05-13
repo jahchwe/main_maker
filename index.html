@@ -104,68 +104,11 @@
       </div>
 
       <div class="container">
-
+        <h5>Task Parameters</h5>
         <div class="row" >
           <div class="col" id="currentForm">
-            <h5>Task Parameters</h5>
             <form action="javascript:add_task();" id="task_inputs">
               <!-- use this form shell to change contents depending on task selection. Will grab inputs via task type as a class attribute, store info via unique ids-->
-              <div id="form_shell">
-                <div class="form-group">
-                  <label for="taskName">task name</label>
-                  <input type="text" class="form-control Decision" id="taskName">
-                  <small id="taskName_help" class="form-text text-muted">Controls the naming of the task in the data and output file name on the server. No white space (use _)</small>
-                </div>
-                <div class="form-group">
-                  <label for="timing_formula">timing formula</label>
-                  <input type="text" class="form-control Decision" id="timing_formula">
-                  <small id="timing_formula_help" class="form-text text-muted">Most important part of this type of experiment. A formula specifying timing. ex. <code>+/500,'1'/200, /100, RS, '2'/</code> will produce 500ms of fixation, stim of class 1 for 200ms, blank screen for 100, followed by stim of class 2 untimed. <code>RS</code> specifies when responses will be accepted. Here <code>'1'</code> and <code>'2'</code> are variables for different types of stim. Explained below. You can include a constant stim in this formula, make sure it also goes into the pictures folder on the server.</small>
-                </div>
-                <div class="form-group">
-                  <label for="stimArray">stim</label>
-                  <textarea type="text" class="form-control Decision" id="stimArray" rows=5 required>thisIsStim1ofClass1.jpg&#13;&#10;thisIsStim2ofClass1.jpg&#13;&#10;thisIsStim3ofClass1.jpg&#13;&#10;---&#13;&#10;thisIsStim1ofClass2.jpg&#13;&#10;thisIsStim2ofClass2.jpg</textarea>
-                  <small id="stimArray_help" class="form-text text-muted">List all stim for this task here <strong>by class</strong>. All stim corresponding to a variable in the formula should be listed together in the corresponding order. Classes of stim should be separated by --- on a new line. See example in text box. Stim will be crossed. If there are 3 in class 1 and 2 in class 2, 6 trials will be made. Trials are randomized across subjs within task. Will be processed by new lines. On mac, you can copy and paste files from Finder and they will autoformat to be delimited by a new line.</small>
-                </div>
-                <div class="form-group">
-                  <label for="prompt">prompt</label>
-                  <input class="form-control Decision" id="prompt" required>
-                  <small id="prompt_help" class="form-text text-muted">Prompt shown while completing the experiment. Ex: Rate the trustworthiness of the face.</small>
-                </div>
-                <div class="form-group">
-                  <label for="instructions">instructions</label>
-                  <textarea type="text" class="form-control Decision" id="instructions" rows=5 required></textarea>
-                  <small id="instructions_help" class="form-text text-muted">Instructions for this specific part of the experiment. Discuss task specifics, what they should be doing. Each new line will be a separate page of instructions.</small>
-                </div>
-                <div class="form-group">
-                  <label for="picHeight">picHeight</label>
-                  <input type="text" class="form-control Decision" id="picHeight" required value=400>
-                  <small id="picHeight_help" class="form-text text-muted">Controls how large stim will be. Honestly just need to fiddle with this one. Will differ depending on length of survey item/size of pic.</small>
-                </div>
-                <div class="form-group">
-                  <label for="color">color</label>
-                  <input type="text" class="form-control Decision" id="color" required value=black>
-                  <small id="color_help" class="form-text text-muted">Controls background color during task. Prob want this to just be <code>black</code> or <code>white</code>. Needs to be a string known to javascript/HTML.</small>
-                </div>
-                <div class="form-group">
-                  <label for="fontSize">fontSize</label>
-                  <input type="text" class="form-control Decision" id="fontSize" required value=16>
-                  <small id="fontSize_help" class="form-text text-muted">Font size of text stim (and prompt?). Unclear how this interacts with picHeight..</small>
-                </div>
-                <div class="form-group">
-                  <label for="keyOptions">keyOptions</label>
-                  <textarea type="text" class="form-control Decision" id="keyOptions" rows=5 required>S&#13;&#10;K</textarea>
-                  <small id="keyOptions_help" class="form-text text-muted">Letters of the keys used for response. Separate by new line.</small>
-                </div>
-                <div class="form-group">
-                  <label for="keyCodes">keyCodes</label>
-                  <textarea type="text" class="form-control Decision" id="keyCodes" rows=5 required>83&#13;&#10;75</textarea>
-                  <small id="keyCodes_help" class="form-text text-muted">Keyboard code corresponding to the letters of choice. Separate by new line. https://www.ascii-code.com/ use the DEC column.</small>
-                </div>
-                <div>
-                  <p id="unique_task_warning" style="color:red;">Please enter a unique task name. Cannot have more than one consent task.</p>
-                </div>
-                <button type="submit" id="add_task" class="btn btn-primary">Add</button>
-              </div>
             </form>
           </div>
           <div class="col">
@@ -193,7 +136,7 @@
     <script>
       Sortable.create(task_sorter, { animation: 100, group: 'list-1', draggable: '.list-group-item', handle: '.list-group-item', sort: true, filter: '.sortable-disabled', chosenClass: 'active' });
 
-      task_form_dict = {'consent': consent_form, 'voteObj': voteObj_form, 'decisionTask': decisionTask_form, 'voteObjMultiComp': voteObjMultiComp_form, 'DecisionMultiComp': DecisionMultiComp_form}
+      task_form_dict = {'consent': consent_form, 'voteObj': voteObj_form, 'Decision': decisionTask_form, 'voteObjMultiComp': voteObjMultiComp_form, 'DecisionMultiComp': DecisionMultiComp_form}
       // add task, the function for adding a task :)
       // things this function does
       // - store all form inputs as a dict
@@ -202,14 +145,20 @@
       $('#unique_task_warning').hide()
       all_tasks = {}
 
-      //manipulate form based on selector
-
-      $("#task_selector").change(function () {
-        var task_selection = $('#task_selector').val()
+      function changeTaskSelection() {
+        let task_selection = $('#task_selector').val()
         $('#currentForm').empty()
         $('#currentForm').append(task_form_dict[task_selection])
         $('#unique_task_warning').hide()
+      }
 
+      //Start with default "Decision" task selection
+      changeTaskSelection()
+        
+      //manipulate form based on selector
+
+      $("#task_selector").change(function () {
+        changeTaskSelection()
       })
 
 
