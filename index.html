@@ -3,11 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Experiment</title>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
     </head>
 
     <style type="text/css">
@@ -93,8 +89,8 @@
             <div class="col-sm-10">
               <select id="task_selector" class="form-control">
                 <option>consent</option>
-                <option>voteObj</option>
-                <option selected>Decision</option>
+                <option selected>voteObj</option>
+                <option>Decision</option>
                 <option>voteObjMultiComp</option>
                 <option>DecisionMultiComp</option>
               </select>
@@ -131,7 +127,10 @@
 
 
       <!-- form for general study variables -->
-
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
     <script type="text/javascript" src="js/task_html.js"></script>
     <script>
       Sortable.create(task_sorter, { animation: 100, group: 'list-1', draggable: '.list-group-item', handle: '.list-group-item', sort: true, filter: '.sortable-disabled', chosenClass: 'active' });
@@ -152,7 +151,7 @@
         $('#unique_task_warning').hide()
       }
 
-      //Start with default "Decision" task selection
+      //Start with default "voteObj" task selection
       changeTaskSelection()
         
       //manipulate form based on selector
@@ -236,14 +235,10 @@
             for (let entry in all_tasks[task_id]) {
               $('#' + entry).val(all_tasks[task_id][entry])
             }
-
-
-
           })
       }
 
       function makeMain() {
-
         // iterate through stored task information
         // grab task order from sortable list
 
@@ -254,10 +249,8 @@
           task_order.push(list_id.substring(12,))
         })
         console.log(task_order)
-
+        
       }
-
-
     </script>
 
     </body>

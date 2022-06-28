@@ -1,0 +1,23 @@
+{
+  "name": "main_maker",
+  "version": "0.1.0",
+  "description": "A simple form for making a webMT main.js file",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walkeruhls/main_maker.git"
+  },
+  "author": "Walker Uhls, John Andrew Chwe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/walkeruhls/main_maker/issues"
+  },
+  "homepage": "https://github.com/walkeruhls/main_maker#readme",
+  "dependencies": {
+    "ejs": "^3.1.8",
+    "express": "^4.18.1"
+  }
+}
