@@ -1,6 +1,4 @@
 const fs = require('fs')
-const mustache = require('mustache')
-
 /* Note - indentation has for variables containg main.js code must be indented this way to avoid formatting mishaps */
 
 //Generate the .nextTask sequence at end of main.js
