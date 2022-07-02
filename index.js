@@ -18,17 +18,20 @@ app.get('/', (req, res) => {        //get requests to the root ("/") will route 
 
 app.use(express.static(__dirname + '/public'))
 
-
+// Receive POST request from client containing tasks
 app.post("/request", urlencodedParser, (req, res) => {
     console.log(req.body)
+    // generate mainOutput from writeMain.js
     let mainOutput = writeMain.generateMain(req.body)
-    fs.writeFile("./main.js", mainOutput, 'utf8', function (err) {
+    // Write main.js file from mainOutput
+    fs.writeFile("./public/main.js", mainOutput, 'utf8', function (err) {
         if (err) {
             return console.log(err);
         }
     
         console.log("The file was saved!");
     });
+    return "Success!";
 })
 
 app.listen(port, () => {            //server starts listening for any attempts from a client to connect at port: {port}

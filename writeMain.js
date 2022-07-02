@@ -1,12 +1,49 @@
 const fs = require('fs')
 const mustache = require('mustache')
 
+/* Note - indentation has for variables containg main.js code must be indented this way to avoid formatting mishaps */
 
+//Generate the .nextTask sequence at end of main.js
+function generateTaskSequence(tasks) {
+    let taskNames = Object.keys(tasks)
+    let output = ""
+    
+    for (let i = 0; i < taskNames.length; i++) {
+        if (i > 0) {
+            output += 
+            `
+${taskNames[i-1]}.nextTask = function(){${taskNames[i]}.start();}
+            `
+            if ((i+1)==taskNames.length) {
+                output += 
+                `
+${taskNames[i]}.nextTask = function(){demoTask.start();}
+                `
+            }
+        }
+        else {
+            output += 
+            `
+screenerTask.nextTask = function () {
+    if (this.eligible) {
+        ${taskNames[i]}.start();
+    } else {
+        $('body').empty().html('Sorry, you are NOT eligible for this study. Please do NOT accept the HIT.').show();
+    }
+}
+            `
+        }
+    }
+    return output
+}
 
-const mainTemplate = `
-"use strict";
+// Generate text of main.js file, to be executed in index.js after POST request from client
+exports.generateMain = function(tasks) {
+    let taskNames = Object.keys(tasks)
+    let output = 
+`"use strict";
 var subjID, IP;
-var study = "${studyName}";
+var study = ${JSON.stringify(tasks[taskNames[taskNames.length-1]].studyName)};
 subjID = getSubjID(7); 							// # is the length of subjID
 
 ///////////////////////////
@@ -21,137 +58,76 @@ screenerTask.checkCustomEligibilities = function () {
     });
 
 if ($('input:radio[name=bornUS]:checked').val()=='yes'  && $('input:radio[name=english]:checked').val()=='yes'){
-       return true;
+        return true;
 
     }
     return false;
 }
 
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
 
 // demo questions
 var demoTask = new demo();
 demoTask.questions = [
-	['age', 'gender'],
-	['hispanic', 'race', 'sexOrientation'],
-	['education', 'religion']
+    ['age', 'gender'],
+    ['hispanic', 'race', 'sexOrientation'],
+    ['education', 'religion']
 ];
 
 // task sequence
 window.onload = function(){ screenerTask.start();}
 `
-
-const consentTemplate = `
+    
+    for (let i = 0; i < taskNames.length; i++) {
+        if (tasks[taskNames[i]].task_type == "consent") {
+            output += 
+            `
 /////////////////////////
 // CONSENT PAGE //
 /////////////////////////
 
-var consentPage = new Consent();
-consentPage.imagesToLoad = 
-consentPage.consentTitle = ['Study on Traits'];
-consentPage.consentText = [
-	'Welcome to the experiment! Thank you for your participation.',
-  'In this study, you will complete several computer tasks. You will see task specific instructions as the study progresses.',
-  'The whole experiment will take approximately 15 minutes to complete, although you will be given one hour to complete the task and enter your code into Mechanical Turk.'
-	];
-consentPage.consentBold = [
-	'Please DO NOT use your browser\'s back or reload buttons!',
-	'You will receive the code for Mechanical Turk at the end of the study.'
-	];
-
-`
-
-const voteObjTemplate = `
+var ${taskNames[i]} = new Consent();
+${taskNames[i]}.imagesToLoad = ${JSON.stringify(tasks[taskNames[i]].imagesToLoad)}
+${taskNames[i]}.consentTitle = [${JSON.stringify(tasks[taskNames[i]].consentTitle)}];
+${taskNames[i]}.consentText = [${JSON.stringify(tasks[taskNames[i]].consentText)}];
+${taskNames[i]}.consentBold = [${JSON.stringify(tasks[taskNames[i]].consentBold)}];
+            `
+        }
+        else if (tasks[taskNames[i]].task_type == "voteObj"){
+            output += 
+            `
 //////////////////////////////
 //    TRAIT VOTE TASK    //
 //////////////////////////////
 
-var TraitTask = new voteObj();
+var ${taskNames[i]} = new voteObj();
 
-TraitTask.name = '{}';
-TraitTask.prompt="Please rate how attractive the person in the photo appears.";
-TraitTask.instructions=['We are interested in the perception of attractiveness in faces.',
-'In this task, you will see a series of faces. Please rate each face on attractiveness using a scale from <b>1 (not at all trustworthy) to 7 (very trustworthy)</b>.',
-'<b>Please pay close attention to the attractiveness of the faces, but go with your gut feeling.</b> Do not spend a lot of time on each face.',
-'There will be attention checks in the task. If you are paying attention, these will be easy to complete.']; // you can add multiple pages of instructions
-TraitTask.trialScale = ["1 - Not at all attractive","2","3", "4 - Neutral","5","6","7 - Very attractive"];
+${taskNames[i]}.name = '${taskNames[i]}';
+${taskNames[i]}.prompt=${JSON.stringify(tasks[taskNames[i]].prompt)};
+${taskNames[i]}.instructions=[${JSON.stringify(tasks[taskNames[i]].instructions)}]; 
+${taskNames[i]}.trialScale = ${JSON.stringify(tasks[taskNames[i]].trialScale)};
 
-var shuffle = function (array) {
+var pics = ${JSON.stringify(tasks[taskNames[i]].picArray)};
 
-	var currentIndex = array.length;
-	var temporaryValue, randomIndex;
-
-	// While there remain elements to shuffle...
-	while (0 !== currentIndex) {
-		// Pick a remaining element...
-		randomIndex = Math.floor(Math.random() * currentIndex);
-		currentIndex -= 1;
-
-		// And swap it with the current element.
-		temporaryValue = array[currentIndex];
-		array[currentIndex] = array[randomIndex];
-		array[randomIndex] = temporaryValue;
-	}
-
-	return array;
-
-};
-
-var pics = 
-'Please press 1',
-'Please press 2',
-'Please press 3',
-'Please press 4',
-'Please press 5',
-'Please press 6',
-'Please press 7',
-'Please press 1',
-'Please press 2',
-'Please press 3'];
-
-TraitTask.picArray = shuffle(pics);
+${taskNames[i]}.picArray = shuffle(pics);
 // These are for styling purpose (more properties can be found in Task.js && vote.js)
-TraitTask.picHeight = 350;
-TraitTask.background_color = 'white';
-TraitTask.screen_color = 'white';
-TraitTask.color = 'black';
-TraitTask.answerWidth = 90
-TraitTask.fastRespCutTime = 750
-TraitTask.feedbackTime = 2000
-`
-
-/* const decisionTaskTemplate = ``
-
-const voteObjMultiCompTemplate = ``
-
-const DecisionMultiCompTemplate = `` */
-
-function generateTaskSequence(tasksObject) {
-    let taskNames = Object.keys(tasksObject)
-    let output = ""
-    
-    for (let i = 0; i < taskNames.length; i++) {
-        if (i > 0) {
-            output += `
-            ${taskNames[i-1]}.nextTask = function(){${taskNames[i]}.start();}
-            `
-            if ((i+1)==taskNames.length) {
-                output += `${taskNames[i-1]}.nextTask = function(){demoTask.start();}
-                `
-            }
-        }
-        else {
-            output += `
-            screenerTask.nextTask = function () {
-                if (this.eligible) {
-                    ${taskNames[i]}.start();
-                } else {
-                    $('body').empty().html('Sorry, you are NOT eligible for this study. Please do NOT accept the HIT.').show();
-                }
-            }
+${taskNames[i]}.picHeight = ${tasks[taskNames[i]].picHeight};
+${taskNames[i]}.background_color = 'white';
+${taskNames[i]}.screen_color = 'white';
+${taskNames[i]}.color = ${JSON.stringify(tasks[taskNames[i]].color)};
+${taskNames[i]}.answerWidth = ${tasks[taskNames[i]].answerWidth}
+${taskNames[i]}.fastRespCutTime = 750
+${taskNames[i]}.feedbackTime = 2000
+${taskNames[i]}.fontSize = ${tasks[taskNames[i]].fontSize}
             `
         }
     }
+
+    output += generateTaskSequence(tasks)
     return output
 }
-
-function generateMain()

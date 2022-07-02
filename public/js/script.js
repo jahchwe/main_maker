@@ -124,6 +124,39 @@ function makeMain() {
   })
   console.log(task_order)
   console.log(all_tasks)
-  $.post("/request", all_tasks)
 
+  // Format arrays of pictures/trial scales
+  let taskNames = Object.keys(all_tasks)
+  for (let i = 0; i < taskNames.length; i++) {
+    if (all_tasks[taskNames[i]].task_type == "consent") {
+      all_tasks[taskNames[i]].imagesToLoad = all_tasks[taskNames[i]].imagesToLoad.split("\n")
+    }
+    else {
+      all_tasks[taskNames[i]].picArray = all_tasks[taskNames[i]].picArray.split("\n")
+      all_tasks[taskNames[i]].trialScale = all_tasks[taskNames[i]].trialScale.split("\n")
+    }
+  }
+  // Post all_tasks to server-side for writing the file
+  $.ajax({
+    type: "POST",
+    url: "/request",
+    data: all_tasks,
+    success: function() {
+      console.log("hello")
+      var link = document.createElement("a");
+      link.setAttribute('download', "");
+      link.href = "main.js";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  })
+  setTimeout(function(){
+    var link = document.createElement("a");
+    link.setAttribute('download', "");
+    link.href = "main.js";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  },1000);
 }

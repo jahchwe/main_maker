@@ -8,7 +8,7 @@ var consent_form =
       '</div>' +
       '<div class="form-group">' +
         '<label for="imagesToLoad">images to load</label>' +
-        '<textarea type="text" class="form-control consent" id="imagesToLoad" rows=5 required></textarea>' +
+        '<textarea type="text" class="form-control consent" id="imagesToLoad" rows=5 required>stim1.jpg\nstim2.jpg\nstim3.jpg</textarea>' +
         '<small id="imagesToLoad_help" class="form-text text-muted">List all stim shown in experiment here. Will be processed by new lines. On mac, you can copy and paste files from Finder and they will autoformat to be delimited by a new line.</small>' +
       '</div>' +
       '<div class="form-group">' +
@@ -43,7 +43,7 @@ var voteObj_form = '<form action="javascript:add_task();" id="task_inputs">' +
 '    </div>' +
 '    <div class="form-group">' +
 '      <label for="picArray">stim</label>' +
-'      <textarea type="text" class="form-control voteObj" id="picArray" rows=5 required></textarea>' +
+'      <textarea type="text" class="form-control voteObj" id="picArray" rows=5 required>stim1.jpg\nstim2.jpg\nstim3.jpg</textarea>' +
 '      <small id="picArray_help" class="form-text text-muted">List all stim for this task here. Trials are randomized across subjs within task. Will be processed by new lines. On mac, you can copy and paste files from Finder and they will autoformat to be delimited by a new line.</small>' +
 '    </div>' +
 '    <div class="form-group">' +
@@ -78,7 +78,7 @@ var voteObj_form = '<form action="javascript:add_task();" id="task_inputs">' +
 '    </div>' +
 '    <div class="form-group">' +
 '      <label for="trialScale">trialScale</label>' +
-'      <textarea type="text" class="form-control voteObj" id="trialScale" rows=5 required></textarea>' +
+'      <textarea type="text" class="form-control voteObj" id="trialScale" rows=5 required>1\n2\n3</textarea>' +
 '      <small id="trialScale_help" class="form-text text-muted">List labels for your scale here, one per line.</small>' +
 '    </div>' +
 '    <div>' +
