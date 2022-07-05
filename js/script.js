@@ -32,21 +32,23 @@ $("#task_selector").change(function () {
   changeTaskSelection()
 })
 
+
+// Function for downloading main.js file client-side
 var textFile = null,
-  makeTextFile = function (text) {
-    var data = new Blob([text], {type: 'text/script'});
+makeTextFile = function (text) {
+  var data = new Blob([text], {type: 'text/script'});
 
-    // If we are replacing a previously generated file we need to
-    // manually revoke the object URL to avoid memory leaks.
-    if (textFile !== null) {
-      window.URL.revokeObjectURL(textFile);
-    }
+  // If we are replacing a previously generated file we need to
+  // manually revoke the object URL to avoid memory leaks.
+  if (textFile !== null) {
+    window.URL.revokeObjectURL(textFile);
+  }
 
-    textFile = window.URL.createObjectURL(data);
+  textFile = window.URL.createObjectURL(data);
 
-    // returns a URL you can use as a href
-    return textFile;
-  };
+  // returns a URL you can use as a href
+  return textFile;
+};
 
 function add_task() {
   $('#unique_task_warning').hide()
@@ -140,9 +142,10 @@ function makeMain() {
   console.log(task_order)
   console.log(all_tasks)
 
-  // Post all_tasks to server-side for writing the file
+  // generate text for main.js file
   var textbox = generateMain(all_tasks)
 
+  //create temporary link for download main.js file
   var link = document.createElement('a');
   link.setAttribute('download', 'main.js');
   link.href = makeTextFile(textbox);
@@ -257,7 +260,7 @@ function formatArrays(tasks) {
   return tasks
 }
 
-// Generate text of main.js file, to be executed in index.js after POST request from client
+// Generate text of main.js file
 function generateMain(tasks) {
   let taskNames = Object.keys(tasks)
   tasks = formatArrays(tasks)
@@ -350,6 +353,7 @@ ${taskNames[i]}.feedbackTime = 2000
 ${taskNames[i]}.fontSize = ${tasks[taskNames[i]].fontSize}
           `
       }
+      //generate Decision task
       else if (tasks[taskNames[i]].task_type == "Decision"){
         output += 
         `
@@ -382,6 +386,7 @@ ${taskNames[i]}.fontSize = ${tasks[taskNames[i]].fontSize}
     }
   }
 
+  //Generate .nextTask sequence at end of main.js file
   output += generateTaskSequence(tasks)
   return output
 }
