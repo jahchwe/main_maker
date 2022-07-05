@@ -140,17 +140,6 @@ function makeMain() {
   console.log(task_order)
   console.log(all_tasks)
 
-  // Format arrays of pictures/trial scales
-  let taskNames = Object.keys(all_tasks)
-  for (let i = 0; i < taskNames.length; i++) {
-    if (all_tasks[taskNames[i]].task_type == "consent") {
-      all_tasks[taskNames[i]].imagesToLoad = all_tasks[taskNames[i]].imagesToLoad.split("\n")
-    }
-    else {
-      all_tasks[taskNames[i]].picArray = all_tasks[taskNames[i]].picArray.split("\n")
-      all_tasks[taskNames[i]].trialScale = all_tasks[taskNames[i]].trialScale.split("\n")
-    }
-  }
   // Post all_tasks to server-side for writing the file
   var textbox = generateMain(all_tasks)
 
@@ -172,37 +161,106 @@ function generateTaskSequence(tasks) {
   let output = ""
   
   for (let i = 0; i < taskNames.length; i++) {
-      if (i > 0) {
-          output += 
-          `
+    if (i > 0) {
+      output += 
+      `
 ${taskNames[i-1]}.nextTask = function(){${taskNames[i]}.start();}
-          `
-          if ((i+1)==taskNames.length) {
-              output += 
-              `
-${taskNames[i]}.nextTask = function(){demoTask.start();}
-              `
-          }
-      }
-      else {
+      `
+      if ((i+1)==taskNames.length) {
           output += 
           `
-screenerTask.nextTask = function () {
-  if (this.eligible) {
-      ${taskNames[i]}.start();
-  } else {
-      $('body').empty().html('Sorry, you are NOT eligible for this study. Please do NOT accept the HIT.').show();
-  }
-}
+${taskNames[i]}.nextTask = function(){demoTask.start();}
           `
       }
+    }
+    else {
+      output += 
+      `
+screenerTask.nextTask = function () {
+if (this.eligible) {
+    ${taskNames[i]}.start();
+} else {
+    $('body').empty().html('Sorry, you are NOT eligible for this study. Please do NOT accept the HIT.').show();
+}
+}
+      `
+    }
   }
   return output
+}
+
+// Bergi - https://stackoverflow.com/a/15310051 - generate all possible combinations of array of arrays
+function cartesian(args) {
+  var r = [], max = args.length-1;
+  function helper(arr, i) {
+      for (var j=0, l=args[i].length; j<l; j++) {
+          var a = arr.slice(0); // clone arr
+          a.push(args[i][j]);
+          if (i==max)
+              r.push(a);
+          else
+              helper(a, i+1);
+      }
+  }
+  helper([], 0);
+  return r;
+}
+
+//Format stimArray for Decision task based on formula
+function formatDecisionArray(decisionArray, formula) {
+  newArray = [];
+  decisionArray = decisionArray.split("\n---\n")
+  formula = formula.replace(new RegExp(" ", "g"), '')
+  formula = formula.split(",")
+
+  for (let i = 0; i < decisionArray.length; i++) {
+    decisionArray[i] = decisionArray[i].split("\n")
+  }
+
+  decisionArray = cartesian(decisionArray);
+  console.log(decisionArray)
+
+  let newFormula = [...formula]
+
+  for (let i = 0; i < decisionArray.length; i++) {
+    for (let j = 0; j <decisionArray[i].length; j++) {
+      for (let k = 0; k < formula.length; k++) {
+        newFormula[k] = newFormula[k].replace("\"" + (j+1) + "\"", decisionArray[i][j])
+      }
+    }
+    newArray.push(newFormula)
+    newFormula = [...formula]
+  }
+
+  return newArray
+}
+
+// Format arrays of pictures/trial scales
+function formatArrays(tasks) {
+  let taskNames = Object.keys(tasks)
+  for (let i = 0; i < taskNames.length; i++) {
+    if (tasks[taskNames[i]].task_type == "consent") {
+      tasks[taskNames[i]].imagesToLoad = tasks[taskNames[i]].imagesToLoad.split("\n")
+    }
+    else {
+      if (tasks[taskNames[i]].task_type == "Decision") {
+        tasks[taskNames[i]].keyOptions = tasks[taskNames[i]].keyOptions.split("\n")
+        tasks[taskNames[i]].keyCodes = tasks[taskNames[i]].keyCodes.split("\n")
+        tasks[taskNames[i]].stimArray = formatDecisionArray(tasks[taskNames[i]].stimArray, tasks[taskNames[i]].timing_formula)
+      }
+      else if (tasks[taskNames[i]].task_type == "voteObj") {
+        tasks[taskNames[i]].picArray = tasks[taskNames[i]].picArray.split("\n")
+        tasks[taskNames[i]].trialScale = tasks[taskNames[i]].trialScale.split("\n")
+      }
+    }
+  }
+  return tasks
 }
 
 // Generate text of main.js file, to be executed in index.js after POST request from client
 function generateMain(tasks) {
   let taskNames = Object.keys(tasks)
+  tasks = formatArrays(tasks)
   let output = 
 `"use strict";
 var subjID, IP;
@@ -247,6 +305,7 @@ window.onload = function(){ screenerTask.start();}
 `
   
   for (let i = 0; i < taskNames.length; i++) {
+    //Generate consent page
       if (tasks[taskNames[i]].task_type == "consent") {
           output += 
           `
@@ -256,11 +315,13 @@ window.onload = function(){ screenerTask.start();}
 
 var ${taskNames[i]} = new Consent();
 ${taskNames[i]}.imagesToLoad = ${JSON.stringify(tasks[taskNames[i]].imagesToLoad)}
-${taskNames[i]}.consentTitle = [${JSON.stringify(tasks[taskNames[i]].consentTitle)}];
-${taskNames[i]}.consentText = [${JSON.stringify(tasks[taskNames[i]].consentText)}];
-${taskNames[i]}.consentBold = [${JSON.stringify(tasks[taskNames[i]].consentBold)}];
+${taskNames[i]}.consentTitle = [${JSON.stringify(tasks[taskNames[i]].consentTitle)}]
+${taskNames[i]}.consentText = [${JSON.stringify(tasks[taskNames[i]].consentText)}]
+${taskNames[i]}.consentBold = [${JSON.stringify(tasks[taskNames[i]].consentBold)}]
           `
       }
+
+      //Generate voteObj 
       else if (tasks[taskNames[i]].task_type == "voteObj"){
           output += 
           `
@@ -268,27 +329,57 @@ ${taskNames[i]}.consentBold = [${JSON.stringify(tasks[taskNames[i]].consentBold)
 //    TRAIT VOTE TASK    //
 //////////////////////////////
 
-var ${taskNames[i]} = new voteObj();
+var ${taskNames[i]} = new voteObj()
 
-${taskNames[i]}.name = '${taskNames[i]}';
-${taskNames[i]}.prompt=${JSON.stringify(tasks[taskNames[i]].prompt)};
-${taskNames[i]}.instructions=[${JSON.stringify(tasks[taskNames[i]].instructions)}]; 
-${taskNames[i]}.trialScale = ${JSON.stringify(tasks[taskNames[i]].trialScale)};
+${taskNames[i]}.name = "${taskNames[i]}"
+${taskNames[i]}.prompt=${JSON.stringify(tasks[taskNames[i]].prompt)}
+${taskNames[i]}.instructions=[${JSON.stringify(tasks[taskNames[i]].instructions)}]
+${taskNames[i]}.trialScale = ${JSON.stringify(tasks[taskNames[i]].trialScale)}
 
-var pics = ${JSON.stringify(tasks[taskNames[i]].picArray)};
+var pics = ${JSON.stringify(tasks[taskNames[i]].picArray)}
 
 ${taskNames[i]}.picArray = shuffle(pics);
 // These are for styling purpose (more properties can be found in Task.js && vote.js)
-${taskNames[i]}.picHeight = ${tasks[taskNames[i]].picHeight};
-${taskNames[i]}.background_color = 'white';
-${taskNames[i]}.screen_color = 'white';
-${taskNames[i]}.color = ${JSON.stringify(tasks[taskNames[i]].color)};
+${taskNames[i]}.picHeight = ${tasks[taskNames[i]].picHeight}
+${taskNames[i]}.background_color = 'white'
+${taskNames[i]}.screen_color = 'white'
+${taskNames[i]}.color = ${JSON.stringify(tasks[taskNames[i]].color)}
 ${taskNames[i]}.answerWidth = ${tasks[taskNames[i]].answerWidth}
 ${taskNames[i]}.fastRespCutTime = 750
 ${taskNames[i]}.feedbackTime = 2000
 ${taskNames[i]}.fontSize = ${tasks[taskNames[i]].fontSize}
           `
       }
+      else if (tasks[taskNames[i]].task_type == "Decision"){
+        output += 
+        `
+//////////////////////////////
+//        DECISION TASK     //
+//////////////////////////////
+var ${taskNames[i]} = new Decision()
+
+// Change task-specific information here (more info can be found in Task.js && Decision.js)
+${taskNames[i]}.name = "${taskNames[i]}"
+${taskNames[i]}.instructions=[${JSON.stringify(tasks[taskNames[i]].instructions)}] // you can add multiple pages of instructions
+${taskNames[i]}.keys = ['']
+${taskNames[i]}.keyCodes = ${JSON.stringify(tasks[taskNames[i]].keyCodes)}
+${taskNames[i]}.keyOptions = ${JSON.stringify(tasks[taskNames[i]].keyOptions)}
+${taskNames[i]}.feedbackTime = 2000;
+${taskNames[i]}.respTimeout = 0;
+${taskNames[i]}.endTrialTimeout = 0;
+${taskNames[i]}.fastRespCutTime = 750;
+// [ [ trial sequence, "RS" means start accepting key press], correct response ]
+${taskNames[i]}.stimArray = [${JSON.stringify(tasks[taskNames[i]].stimArray)}];
+
+// These are for styling purpose (more properties can be found in Task.js && Decision.js)
+${taskNames[i]}.picHeight = ${tasks[taskNames[i]].picHeight};
+${taskNames[i]}.background_color = 'white';
+${taskNames[i]}.screen_color = 'black';
+${taskNames[i]}.color = ${JSON.stringify(tasks[taskNames[i]].color)}; 
+${taskNames[i]}.answerWidth = ${tasks[taskNames[i]].answerWidth}
+${taskNames[i]}.fontSize = ${tasks[taskNames[i]].fontSize}
+        `
+    }
   }
 
   output += generateTaskSequence(tasks)
