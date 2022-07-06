@@ -3,11 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Experiment</title>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
     </head>
 
     <style type="text/css">
@@ -92,11 +88,11 @@
             <label for="object_type" class="col-sm-2 col-form-label">Task</label>
             <div class="col-sm-10">
               <select id="task_selector" class="form-control">
-                <option>consent</option>
+                <option selected>consent</option>
                 <option>voteObj</option>
-                <option selected>Decision</option>
-                <option>voteObjMultiComp</option>
-                <option>DecisionMultiComp</option>
+                <option>Decision</option>
+                <option disabled>voteObjMultiComp</option>
+                <option disabled>DecisionMultiComp</option>
               </select>
             </div>
           </div>
@@ -104,68 +100,11 @@
       </div>
 
       <div class="container">
-
+        <h5>Task Parameters</h5>
         <div class="row" >
           <div class="col" id="currentForm">
-            <h5>Task Parameters</h5>
             <form action="javascript:add_task();" id="task_inputs">
               <!-- use this form shell to change contents depending on task selection. Will grab inputs via task type as a class attribute, store info via unique ids-->
-              <div id="form_shell">
-                <div class="form-group">
-                  <label for="taskName">task name</label>
-                  <input type="text" class="form-control Decision" id="taskName">
-                  <small id="taskName_help" class="form-text text-muted">Controls the naming of the task in the data and output file name on the server. No white space (use _)</small>
-                </div>
-                <div class="form-group">
-                  <label for="timing_formula">timing formula</label>
-                  <input type="text" class="form-control Decision" id="timing_formula">
-                  <small id="timing_formula_help" class="form-text text-muted">Most important part of this type of experiment. A formula specifying timing. ex. <code>+/500,'1'/200, /100, RS, '2'/</code> will produce 500ms of fixation, stim of class 1 for 200ms, blank screen for 100, followed by stim of class 2 untimed. <code>RS</code> specifies when responses will be accepted. Here <code>'1'</code> and <code>'2'</code> are variables for different types of stim. Explained below. You can include a constant stim in this formula, make sure it also goes into the pictures folder on the server.</small>
-                </div>
-                <div class="form-group">
-                  <label for="stimArray">stim</label>
-                  <textarea type="text" class="form-control Decision" id="stimArray" rows=5 required>thisIsStim1ofClass1.jpg&#13;&#10;thisIsStim2ofClass1.jpg&#13;&#10;thisIsStim3ofClass1.jpg&#13;&#10;---&#13;&#10;thisIsStim1ofClass2.jpg&#13;&#10;thisIsStim2ofClass2.jpg</textarea>
-                  <small id="stimArray_help" class="form-text text-muted">List all stim for this task here <strong>by class</strong>. All stim corresponding to a variable in the formula should be listed together in the corresponding order. Classes of stim should be separated by --- on a new line. See example in text box. Stim will be crossed. If there are 3 in class 1 and 2 in class 2, 6 trials will be made. Trials are randomized across subjs within task. Will be processed by new lines. On mac, you can copy and paste files from Finder and they will autoformat to be delimited by a new line.</small>
-                </div>
-                <div class="form-group">
-                  <label for="prompt">prompt</label>
-                  <input class="form-control Decision" id="prompt" required>
-                  <small id="prompt_help" class="form-text text-muted">Prompt shown while completing the experiment. Ex: Rate the trustworthiness of the face.</small>
-                </div>
-                <div class="form-group">
-                  <label for="instructions">instructions</label>
-                  <textarea type="text" class="form-control Decision" id="instructions" rows=5 required></textarea>
-                  <small id="instructions_help" class="form-text text-muted">Instructions for this specific part of the experiment. Discuss task specifics, what they should be doing. Each new line will be a separate page of instructions.</small>
-                </div>
-                <div class="form-group">
-                  <label for="picHeight">picHeight</label>
-                  <input type="text" class="form-control Decision" id="picHeight" required value=400>
-                  <small id="picHeight_help" class="form-text text-muted">Controls how large stim will be. Honestly just need to fiddle with this one. Will differ depending on length of survey item/size of pic.</small>
-                </div>
-                <div class="form-group">
-                  <label for="color">color</label>
-                  <input type="text" class="form-control Decision" id="color" required value=black>
-                  <small id="color_help" class="form-text text-muted">Controls background color during task. Prob want this to just be <code>black</code> or <code>white</code>. Needs to be a string known to javascript/HTML.</small>
-                </div>
-                <div class="form-group">
-                  <label for="fontSize">fontSize</label>
-                  <input type="text" class="form-control Decision" id="fontSize" required value=16>
-                  <small id="fontSize_help" class="form-text text-muted">Font size of text stim (and prompt?). Unclear how this interacts with picHeight..</small>
-                </div>
-                <div class="form-group">
-                  <label for="keyOptions">keyOptions</label>
-                  <textarea type="text" class="form-control Decision" id="keyOptions" rows=5 required>S&#13;&#10;K</textarea>
-                  <small id="keyOptions_help" class="form-text text-muted">Letters of the keys used for response. Separate by new line.</small>
-                </div>
-                <div class="form-group">
-                  <label for="keyCodes">keyCodes</label>
-                  <textarea type="text" class="form-control Decision" id="keyCodes" rows=5 required>83&#13;&#10;75</textarea>
-                  <small id="keyCodes_help" class="form-text text-muted">Keyboard code corresponding to the letters of choice. Separate by new line. https://www.ascii-code.com/ use the DEC column.</small>
-                </div>
-                <div>
-                  <p id="unique_task_warning" style="color:red;">Please enter a unique task name. Cannot have more than one consent task.</p>
-                </div>
-                <button type="submit" id="add_task" class="btn btn-primary">Add</button>
-              </div>
             </form>
           </div>
           <div class="col">
@@ -182,134 +121,18 @@
 
       <div class="container">
         <div class="form-group">
-          <button type="button" class="btn btn-primary btn-lg btn-block" onclick="makeMain();">Make my main!</button>
+          <button type="button" id="create" class="btn btn-primary btn-lg btn-block" onclick="makeMain();">Make my main!</button>
         </div>
       </div>
 
 
       <!-- form for general study variables -->
-
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RubaXa/Sortable/Sortable.min.js"></script>
     <script type="text/javascript" src="js/task_html.js"></script>
-    <script>
-      Sortable.create(task_sorter, { animation: 100, group: 'list-1', draggable: '.list-group-item', handle: '.list-group-item', sort: true, filter: '.sortable-disabled', chosenClass: 'active' });
-
-      task_form_dict = {'consent': consent_form, 'voteObj': voteObj_form, 'decisionTask': decisionTask_form, 'voteObjMultiComp': voteObjMultiComp_form, 'DecisionMultiComp': DecisionMultiComp_form}
-      // add task, the function for adding a task :)
-      // things this function does
-      // - store all form inputs as a dict
-      // - add draggable and droppable viz for task ordering
-
-      $('#unique_task_warning').hide()
-      all_tasks = {}
-
-      //manipulate form based on selector
-
-      $("#task_selector").change(function () {
-        var task_selection = $('#task_selector').val()
-        $('#currentForm').empty()
-        $('#currentForm').append(task_form_dict[task_selection])
-        $('#unique_task_warning').hide()
-
-      })
-
-
-      function add_task() {
-        $('#unique_task_warning').hide()
-        console.log('Adding...')
-        // get current task selection from #task_selector
-        // The name of the task selector will match the class label that will be used to create a dictionary of user input, to be made into a main.js file
-        var task_selection = $('#task_selector').val()
-        console.log(task_selection)
-
-        // for all elements that contain the task selector as a class label, iterate through and store both the responses and the identifiers as a dictionary
-        // crucially again, the identifiers match the task attributes that need to be specified in the main.js
-        var task_id = null
-
-        var form_elements = $('.' + task_selection)
-        console.log(form_elements)
-        // store info !! Note this can also (or should) be done with jquery .each
-
-        //get task name
-        task_id = $('#taskName').val()
-        if (task_id in all_tasks) {
-          $('#unique_task_warning').show()
-          return
-        }
-
-        all_tasks[task_id] = {}
-
-        for (var i = 0; i < form_elements.length; i++) {
-          // form elements here is a large DOM element.
-          var elementID = form_elements[i].id
-          console.log(elementID)
-          if (elementID == 'taskName') {
-            continue;
-          }
-          // parse this DOM element using another jquery selector to get actual value inputted by user.
-          var elementVal = $('#' + elementID).val()
-          all_tasks[task_id][elementID] = elementVal
-        }
-        //store the type of task Here
-        all_tasks[task_id]['task_type'] = task_selection
-        // add element to task_sorter
-        $('#task_sorter').append('<li class="list-group-item" id="sorter_item_' + task_id + '" name="'+ task_id +'"> ' + task_id + ' <button class="task_edit" type="button" id="'+ task_id + '">Edit</button> <button class="task_delete" type="button" id="'+ task_id+'" >Delete</button></li>')
-
-        //add listeners to task delete and edit buttons
-        //doing this every time a new task is added, not the most efficient but w/e
-        attach_listeners()
-      }
-
-      function attach_listeners() {
-          //remove data and list item
-          $(".task_delete").click(function() {
-            console.log('delete')
-            var task_id = $(this).attr("id");
-            delete all_tasks[task_id]
-            $('#sorter_item_' + task_id).remove()
-          });
-
-          //load and populate fields based on edit button pressed
-          //will store all task relevant html in separate JS file
-          $(".task_edit").click(function() {
-            console.log('edit')
-            var task_id = $(this).attr("id")
-            console.log(task_id)
-            var task_type = all_tasks[task_id]['task_type']
-            console.log(task_type)
-
-            // change form to match type
-            $('#currentForm').empty()
-            $('#currentForm').append(task_form_dict[task_type])
-            $('#unique_task_warning').hide()
-
-            // iterate through stored info, and propogate that info back into the text boxes
-            // can use jquery val selector to propogate info for both textareas and inputs
-            for (let entry in all_tasks[task_id]) {
-              $('#' + entry).val(all_tasks[task_id][entry])
-            }
-
-
-
-          })
-      }
-
-      function makeMain() {
-
-        // iterate through stored task information
-        // grab task order from sortable list
-
-        task_order = []
-        //crucially, this will be in the order that it appears on the screen
-        $('li').each(function() {
-          let list_id = this.id
-          task_order.push(list_id.substring(12,))
-        })
-        console.log(task_order)
-
-      }
-
-
-    </script>
+    <script type="text/javascript" src="js/script.js"></script>
 
     </body>
 
