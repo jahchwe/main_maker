@@ -137,7 +137,7 @@ function makeMain() {
   let new_tasks = {}
 
   for (i = 0; i < new_task_order.length; i++) {
-    new_tasks[new_task_order[i]]=all_tasks[new_task_order[i]]
+    new_tasks[new_task_order[i]]={...all_tasks[new_task_order[i]]}
   }
   console.log(task_order)
   console.log(new_tasks)
